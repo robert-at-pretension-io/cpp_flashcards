@@ -18,31 +18,38 @@ std::string get_string(std::string string) {
     std::cin >> string;
     return string;
 }
-
+template<typename T>
+void output(T thing) noexcept {
+    std::cout << thing;
+    return;
+}
+void newline(){
+std::cout << std::endl;
+}
 std::vector<std::string> get_vector(std::vector<std::string> v) {
     std::string string;
-        std::cout << "Enter a word then press enter. When you are finished, enter the word done." << std::endl;
-        while(string != "done" ) {
+    output("Enter a word then press enter. When you are finished, enter the word done.");
+    while(string != "done" ) {
         string = get_string(string);
         v.push_back(string);
-        }
+    }
     return v;
 }
 
 std::vector<std::string> get_vector(std::vector<std::string> v, int n) {
-std::string string;
-std::cout <<"Enter a word then press enter. You must enter " << n << " words." << std::endl;
-    while(n-- > 0){
+    std::string string;
+    output("Enter a word then press enter. You must enter "); output(n); output(" words."); newline();
+    while(n-- > 0) {
 
         string = get_string(string);
         v.push_back(string);
-}
-return v;
+    }
+    return v;
 }
 
 bool yes_or_no() {
     std::string string;
-    std::cout << "Please enter yes or no" << std::endl;
+    output( "Please enter yes or no" ); newline();
     while (string != "yes" or string != "no") {
         string = get_string(string);
         if (string == "yes") {
@@ -55,58 +62,57 @@ bool yes_or_no() {
     return false;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
+class unqiue_name {
+    std::string atomic_name; //this is the name of an object (must be unqiue within the level of abstraction) This also allows for cool proper usage with databases
+};
 
+class unique_hierarchy {
+    std::vector<std::string> related_concepts; //concepts in the same abstract level in the hierarchical ontology
+    std::vector<std::string> dependent_concepts; //concepts in the next level up on the hierarchical ontology
+    std::vector<std::string> atomic_name_aliases; //these are all corresponding names for an object
+    protected:
+    
+};
 
 class flashcard {
 private:
     std::string question;
     std::string answer;
-    std::vector<std::string> tags; //all of the tags must be mentioned in the user entered answer for the flash card to be marked as correct
-    bool atomic; //this flag determines if a particular flashcard is the most simple and/or most general definition. For instance, "red" is the most simple concept in the domain of primary colors and this flag would be set to true. But "red," in the domain of physics, could have many different tags. So a flashcard may only have one tag, in this case the atomic field is set to false. If the flashcard has one tag and atomic is set to true then that flashcard is atomic- as defined above.
+    std::vector<std::string> mention_these_terms; //all these terms must be mentioned to get the card 100% correct
+public:
+    flashcard() {};
+    ~flashcard() {};
+};
+
+class stack {
+private:
+    std::vector<flashcard> a_stack;
+public:
+};
+
+
+class category {
+private:
+    std::vector<stack> node;
+};
+
+class user{
+private:
+    std::vector<stack> my_cards;
+    std::vector<std::string> my_interests;
+};
+
+class stats{
+    user this_guy;
+    flashcard this_flashcard;
     short priority;
     short times_seen;
     short times_correct;
     short times_incorrect;
     short correct_streak;
-public:
-    flashcard() : priority {4} ,times_seen {0},  times_correct {0}, times_incorrect {0}, correct_streak {0} {
-        std::cout << "Enter the question that will appear on the flashcard" << std::endl;
-        question = get_string(question);
-        std::cout << "Enter the answer that will appear on the flashcard" << std::endl;
-        answer = get_string(answer);
-        std::cout << "Is this a basic concept that cannot be defined in terms of other related concepts?" << std::endl;
-        atomic = yes_or_no();
-        if (atomic == false) {
-            std::cout << "Enter the concepts that are directly related to answering this card correctly." << std::endl;
-            tags = get_vector(tags);
-        }
-        else {
-            std::cout << "Various ways this concept could be uniquely refered to as." << std::endl;
-            get_vector(tags);
+};
 
-}
-        };
-        ~flashcard() {};
-    };
 
-    class stack {
-    private:
-        std::string name;
-        std::vector<flashcard> stck;
-    public:
-        stack(std::string nm) : name {nm} {};
-        void add_card() {
-            flashcard card;
-            stck.push_back(card);
-            return;
-        }
-    };
-    int main() {
-    
-std::vector<std::string> vs;
-vs = get_vector(vs,3);
-for (auto x : vs){
-std::cout << x << std::endl;
-}
+int main() {
 
 }
