@@ -14,17 +14,21 @@ why: because I'm tired of not having a systematic form of measuring learning of 
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // These are input wrappers so that this can be easily ported to have other input methods//
+
 std::string get_string(std::string string) {
     std::cin >> string;
     return string;
 }
+
 void newline() {
     std::cout << std::endl;
 }
 template<typename T>
 void output(T thing, bool new_line=false) noexcept {
     std::cout << thing;
-    if(new_line){ newline();}
+    if(new_line) {
+        newline();
+    }
     return;
 }
 std::vector<std::string> get_vector(std::vector<std::string> v) {
@@ -53,8 +57,7 @@ std::vector<std::string> get_vector(std::vector<std::string> v, int n) {
 
 bool true_or_false() {
     std::string string;
-    output( "Please enter yes or no" ,true);
-    newline();
+    output( "(yes or no): ");
     while (string != "yes" or string != "no") {
         string = get_string(string);
         if (string == "yes") {
@@ -63,54 +66,77 @@ bool true_or_false() {
         if (string == "no") {
             return false;
         }
+        output("please enter yes or no: ");
     }
     return false;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
-class name {
+class names {
 protected:
-    std::string concept; //This is the name that will be used as the unique key in the database table
-    std::vector<std::string> aliases; //these are all corresponding names for an object
+    std::string unique_name; //This is the name that will be used as the unique key in the database table
+    std::vector<std::string> all_names; //these are all corresponding names for an object
+    std::string explanation; //this will contain the explaination of the namespace
 public:
-    name() {
-        output("Please enter a name for the concept.",true);
-        concept = get_string(concept);
-        output("Does this name have any aliases?",true);
-        if(true_or_false()) {
-            aliases = get_vector(aliases);
+    names(std::string str="Enter all names of the conceptual node.") : explanation{str}  {
+        //name the concept
+        output(explanation,true);
+        all_names = get_vector(all_names);
+        unique_name = all_names[0];
+    }
+    bool look_for(std::string string) {
+for (std::string x : all_names) {
+            if (string == x) {
+                return true;
+            }
         }
-    };
+        return false;
+    }
+
 
 };
 
-class name_connector : public name {
+class relations : public names {
 protected:
     bool atomic; //this flag means that there are no related or dependent concepts, essentially it means it's the highest level in the ontological framework
-    std::vector<std::string> related_concepts; //concepts in the same abstract level in the hierarchical ontology
-    std::vector<std::string> dependent_concepts; //concepts in the next level up on the hierarchical ontology
+    std::vector<std::string> dependent_names; //concepts in the next level up on the hierarchical ontology
 public:
-    name_connector() : name() {
+    relations() : names() {
         output("Does ");
-        output(concept);
-        output(" have any concepts that it relies on?",true);
+        output(unique_name);
+        output(" have any concepts that it relies on? ");
         bool relies_on = true_or_false();
         if(relies_on) {
-            related_concepts = get_vector(related_concepts);
-        }
-        output("Does ");
-        output(concept);
-        output(" have any concepts that are related to it?",true);
-        bool related_to = true_or_false();
-        if(related_to) {
             dependent_concepts = get_vector(dependent_concepts);
         }
-        if(!related_to and !relies_on) {
+        if(!relies_on) {
             atomic = true;
         }
 
     };
+    std::vector<std::string> dependencies(){
+    return dependent_concepts;
+}
 
 };
+
+class domain {
+    std::vector<relations> pool_of_names_and_relations;
+    std::vector<std::string> pool_of_unconnected_concepts;
+
+public:
+    domain() { 
+    
+    }
+
+    void add(){
+    relations new_relation {};
+    // Add functions here that will add the new_relation to the pool_of_names_and_relations if there are no namespace overlap. If there is namespace overlap then try to resolve it by appending the dependent and aliases to the pre-existing relations object
+
+
+    }
+};
+
+
 
 class flashcard {
 private:
@@ -123,10 +149,10 @@ public:
 };
 
 class concept {
-    name_connector concept_connector;
+    domain concept_domain;
     std::vector<flashcard> topic;
 public:
-concept() { concept_connector {}; };
+    concept() {  };
 };
 
 
@@ -153,5 +179,4 @@ class stats {
 
 
 int main() {
-concept rocket_science {};
 }
