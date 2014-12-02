@@ -120,6 +120,7 @@ public:
 };
 
 class domain {
+    std::string name_of_domain; //the name of the domain must not exist in the namespace, in other words, it must be unique as well.
     std::vector<relations> pool_of_names_and_relations;
     std::vector<std::string> pool_of_unconnected_concepts;
 
@@ -148,18 +149,6 @@ public:
     ~flashcard() {};
 };
 
-class concept {
-    domain concept_domain;
-    std::vector<flashcard> topic;
-public:
-    concept() {  };
-};
-
-
-class category {
-private:
-    std::vector<concept> node;
-};
 
 class user {
 private:
