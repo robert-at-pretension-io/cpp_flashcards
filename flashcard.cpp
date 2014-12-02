@@ -77,7 +77,7 @@ protected:
     std::vector<std::string> all_names; //these are all corresponding names for an object
     std::string explanation; //this will contain the explaination of the namespace
 public:
-    names(std::string str="Enter all names of the conceptual node.") : explanation{str}  {
+    names(std::string str="Enter all names of the conceptual node.") : explanation {str}  {
         //name the concept
         output(explanation,true);
         all_names = get_vector(all_names);
@@ -91,7 +91,9 @@ for (std::string x : all_names) {
         }
         return false;
     }
-
+    std::vector<std::string> return_names() {
+        return all_names;
+    }
 
 };
 
@@ -113,25 +115,63 @@ public:
         }
 
     };
-    std::vector<std::string> dependencies(){
-    return dependent_concepts;
-}
+    std::vector<std::string> dependencies() {
+        return dependent_concepts;
+    }
 
 };
 
 class domain {
     std::string name_of_domain; //the name of the domain must not exist in the namespace, in other words, it must be unique as well.
-    std::vector<relations> pool_of_names_and_relations;
+    std::vector<relations> pool_of_relations;
     std::vector<std::string> pool_of_unconnected_concepts;
 
 public:
-    domain() { 
-    
-    }
+    domain() {
 
-    void add(){
-    relations new_relation {};
-    // Add functions here that will add the new_relation to the pool_of_names_and_relations if there are no namespace overlap. If there is namespace overlap then try to resolve it by appending the dependent and aliases to the pre-existing relations object
+    }
+    bool name_space_overlap(relations this_relation) {
+
+        std::vector<std::string> new_relation_names = this_relation.return_names();
+for (relations existing_relation : pool_of_relations) {
+for (std::string new_name : new_relation_names) {
+                if(existing_relation.look_for(new_name)) {
+                    return true;
+                }
+            }
+        }
+
+    }
+/*
+void update_unconnected_concepts(relations this_relation){
+        std::vector<std::string> new_relation_names = this_relation.return_names();
+for (std::string check : pool_of_unconnected_concepts) {
+for (std::string new_name : new_relation_names){
+
+}
+}
+
+return;
+}
+*/
+
+
+    void add() {
+        relations new_relation {};
+        std::vector<std::string> new_relation_dependencies = new_relation.dependencies();
+
+        if (new_relation.name_space_overlap()) {
+            output("There is a namespace overlap: the name you entered already exists in this domain."); 
+            //Would you like to see the overlap? You'll be given the option to merge relations, choose which relation is better or disregard the newly created concept entirely.
+        }
+        
+//we got through all the aliases and there are no overlaps, cool, let's modify the pool_of_unconnected_concepts
+}
+
+
+
+
+        // Add functions here that will add the new_relation to the pool_of_names_and_relations if there are no namespace overlap. If there is namespace overlap then try to resolve it by appending the dependent and aliases to the pre-existing relations object
 
 
     }
