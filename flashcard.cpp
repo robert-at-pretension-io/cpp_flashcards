@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 /*
 Created by Robert Elliot Pahel-Short some time during late October of 2014
 who: for anyone who needs to understand a topic
@@ -53,6 +54,14 @@ std::vector<std::string> get_vector(std::vector<std::string> v, int n) {
         v.push_back(string);
     }
     return v;
+}
+
+std::vector<std::string> intersection(std::vector<std::string> v1, std::vector<std::string> v2) {
+    std::vector<std::string> overlap;
+    std::sort(v1.begin(),v1.end());
+    std::sort(v2.begin(),v2.end());
+    std::set_intersection(v1.begin(),v1.end(),v2.begin(),v2.end(),back_inserter(overlap));
+    return overlap;
 }
 
 bool true_or_false() {
@@ -108,7 +117,7 @@ public:
         output(" have any concepts that it relies on? ");
         bool relies_on = true_or_false();
         if(relies_on) {
-            dependent_concepts = get_vector(dependent_concepts);
+            dependent_names = get_vector(dependent_names);
         }
         if(!relies_on) {
             atomic = true;
@@ -116,7 +125,7 @@ public:
 
     };
     std::vector<std::string> dependencies() {
-        return dependent_concepts;
+        return dependent_names;
     }
 
 };
@@ -129,7 +138,7 @@ class domain {
 public:
     domain() {
 
-    }
+    };
     bool name_space_overlap(relations this_relation) {
 
         std::vector<std::string> new_relation_names = this_relation.return_names();
@@ -142,39 +151,39 @@ for (std::string new_name : new_relation_names) {
         }
 
     }
-/*
-void update_unconnected_concepts(relations this_relation){
-        std::vector<std::string> new_relation_names = this_relation.return_names();
-for (std::string check : pool_of_unconnected_concepts) {
-for (std::string new_name : new_relation_names){
+    /*
+    void update_unconnected_concepts(relations this_relation){
+            std::vector<std::string> new_relation_names = this_relation.return_names();
+    for (std::string check : pool_of_unconnected_concepts) {
+    for (std::string new_name : new_relation_names){
 
-}
-}
+    }
+    }
 
-return;
-}
-*/
+    return;
+    }
+    */
 
 
     void add() {
         relations new_relation {};
         std::vector<std::string> new_relation_dependencies = new_relation.dependencies();
 
-        if (new_relation.name_space_overlap()) {
-            output("There is a namespace overlap: the name you entered already exists in this domain."); 
+        if (name_space_overlap(new_relation)) {
+            output("There is a namespace overlap: the name you entered already exists in this domain.");
             //Would you like to see the overlap? You'll be given the option to merge relations, choose which relation is better or disregard the newly created concept entirely.
         }
-        
+
 //we got through all the aliases and there are no overlaps, cool, let's modify the pool_of_unconnected_concepts
-}
-
-
-
-
-        // Add functions here that will add the new_relation to the pool_of_names_and_relations if there are no namespace overlap. If there is namespace overlap then try to resolve it by appending the dependent and aliases to the pre-existing relations object
-
-
     }
+
+
+
+
+    // Add functions here that will add the new_relation to the pool_of_names_and_relations if there are no namespace overlap. If there is namespace overlap then try to resolve it by appending the dependent and aliases to the pre-existing relations object
+
+
+
 };
 
 
@@ -192,7 +201,7 @@ public:
 
 class user {
 private:
-    std::vector<category> my_current_study;
+    //std::vector<category> my_current_study;
     std::vector<std::string> my_interests;
 };
 
@@ -208,4 +217,10 @@ class stats {
 
 
 int main() {
+    std::vector<std::string> stop_light {"red", "yellow", "green"};
+    std::vector<std::string> primary_color {"red","green","blue"};
+    std::vector<std::string> overlap = intersection(stop_light,primary_color);
+for (auto str : overlap) {
+        std::cout << str << std::endl;
+    }
 }
