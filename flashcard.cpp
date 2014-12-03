@@ -56,12 +56,28 @@ std::vector<std::string> get_vector(std::vector<std::string> v, int n) {
     return v;
 }
 
+void print_vector(std::vector<std::string> v){
+for (std::string i : v) output(i,true);
+}
+
 std::vector<std::string> intersection(std::vector<std::string> v1, std::vector<std::string> v2) {
     std::vector<std::string> overlap;
     std::sort(v1.begin(),v1.end());
     std::sort(v2.begin(),v2.end());
     std::set_intersection(v1.begin(),v1.end(),v2.begin(),v2.end(),back_inserter(overlap));
     return overlap;
+}
+
+std::vector<std::string> remove_item(std::vector<std::string> v, std::string remove_me){
+    v.erase(std::remove(v.begin(), v.end(), remove_me), v.end());
+    return v;
+}
+
+
+std::vector<std::string> minus(std::vector<std::string> v, std::vector<std::string> take_these_out){
+std::vector<std::string> overlap = intersection(v,take_these_out);
+for (std::string each : overlap) {v = remove_item(v, each);}
+return v;
 }
 
 bool true_or_false() {
@@ -219,8 +235,9 @@ class stats {
 int main() {
     std::vector<std::string> stop_light {"red", "yellow", "green"};
     std::vector<std::string> primary_color {"red","green","blue"};
-    std::vector<std::string> overlap = intersection(stop_light,primary_color);
-for (auto str : overlap) {
-        std::cout << str << std::endl;
-    }
+
+output("stop_light contains: ",true); print_vector(stop_light);
+output("primary_color contains: ",true); print_vector(primary_color);
+std::vector<std::string> test = minus(stop_light, primary_color);
+output("test should now be yellow: ",true); print_vector(test);
 }
