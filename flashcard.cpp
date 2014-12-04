@@ -80,6 +80,13 @@ for (std::string each : overlap) {v = remove_item(v, each);}
 return v;
 }
 
+std::vector<std::string> add_unique_items(std::vector<std::string> v1, std::vector<std::string> v2){
+std::vector<std::string> overlap = intersection(v1,v2);
+v2 = minus(v2,overlap);
+for (std::string add_this : v2) v1.push_back(add_this);
+return v1;
+}
+
 bool true_or_false() {
     std::string string;
     output( "(yes or no): ");
@@ -121,11 +128,33 @@ for (std::string x : all_names) {
     }
 
 };
+class object {
+    std::string name;
+};
+
+class flashcard : public object{
+private:
+    std::string question;
+    std::string answer;
+    std::vector<std::string> mention_these_terms; //all these terms must be mentioned to get the card 100% correct
+public:
+    flashcard() : name{"flashcard"} {
+    output("Q: "); question = get_string(question); newline();
+    output("A: "); answer = get_string(answer); newline();
+    output("What terms must be mentioned to get this card completely correct?"); mention_these_terms = get_vector(mention_these_terms);
+    };
+    ~flashcard() {};
+};
+
+
+
 
 class relations : public names {
 protected:
     bool atomic; //this flag means that there are no related or dependent concepts, essentially it means it's the highest level in the ontological framework
     std::vector<std::string> dependent_names; //concepts in the next level up on the hierarchical ontology
+    std::vector<std::string> has_objects; //currently the only object is flashcard
+    std::vector<object> has_these_objects;
 public:
     relations() : names() {
         output("Does ");
@@ -143,8 +172,12 @@ public:
     std::vector<std::string> dependencies() {
         return dependent_names;
     }
-
+    void add_object (std::string obj){
+has_objects.push_back(obj);
+}
 };
+
+
 
 class domain {
     std::string name_of_domain; //the name of the domain must not exist in the namespace, in other words, it must be unique as well.
@@ -153,66 +186,49 @@ class domain {
 
 public:
     domain() {
-
+    output("What would you like to name this domain?");
+    name_of_domain = get_string(name_of_domain);
+    relations first {};
+    pool_of_relations.push_back(first);
+    pool_of_unconnected_concepts.push_back(first.dependencies());
     };
-    bool name_space_overlap(relations this_relation) {
+    relations name_space_overlap(relations this_relation) {
 
         std::vector<std::string> new_relation_names = this_relation.return_names();
 for (relations existing_relation : pool_of_relations) {
 for (std::string new_name : new_relation_names) {
                 if(existing_relation.look_for(new_name)) {
-                    return true;
+                    return existing_relation;
                 }
             }
         }
 
     }
-    /*
-    void update_unconnected_concepts(relations this_relation){
-            std::vector<std::string> new_relation_names = this_relation.return_names();
-    for (std::string check : pool_of_unconnected_concepts) {
-    for (std::string new_name : new_relation_names){
-
-    }
-    }
-
-    return;
-    }
-    */
 
 
     void add() {
         relations new_relation {};
         std::vector<std::string> new_relation_dependencies = new_relation.dependencies();
-
-        if (name_space_overlap(new_relation)) {
-            output("There is a namespace overlap: the name you entered already exists in this domain.");
+        std::vector<std::string> new_relation_names = new_relation.return_names();
+        relations temp = name_space_overlap(new_relation);  
+            if( temp != new_relation) {
+            output("There is a namespace overlap with: "); output(temp[0],true);
             //Would you like to see the overlap? You'll be given the option to merge relations, choose which relation is better or disregard the newly created concept entirely.
         }
 
-//we got through all the aliases and there are no overlaps, cool, let's modify the pool_of_unconnected_concepts
+//we got through all the aliases and there are no overlaps, cool, let's modify the pool_of_unconnected_concepts to be only those concepts that have no definition
+    pool_of_unconnected_concepts = minus(pool_of_unconnected_concepts, new_relation_names);
+    pool_of_unconnected_concepts = add_unique_items(pool_of_unconnected_concepts, new_relation_dependencies);
     }
-
-
-
-
-    // Add functions here that will add the new_relation to the pool_of_names_and_relations if there are no namespace overlap. If there is namespace overlap then try to resolve it by appending the dependent and aliases to the pre-existing relations object
-
-
-
+    output("Would you like to add a flashcard? "); 
+    bool answer = true_or_false();
+    if(answer){
+        new_relation.add_object("flashcard");
+        flashcard this_card {};
+    }
 };
 
 
-
-class flashcard {
-private:
-    std::string question;
-    std::string answer;
-    std::vector<std::string> mention_these_terms; //all these terms must be mentioned to get the card 100% correct
-public:
-    flashcard() {};
-    ~flashcard() {};
-};
 
 
 class user {
