@@ -56,7 +56,7 @@ std::vector<std::string> get_vector(std::vector<std::string> v, int n) {
     return v;
 }
 
-void print_vector(std::vector<std::string> v){
+void print_vector(std::vector<std::string> v) {
 for (std::string i : v) output(i,true);
 }
 
@@ -68,23 +68,25 @@ std::vector<std::string> intersection(std::vector<std::string> v1, std::vector<s
     return overlap;
 }
 
-std::vector<std::string> remove_item(std::vector<std::string> v, std::string remove_me){
+std::vector<std::string> remove_item(std::vector<std::string> v, std::string remove_me) {
     v.erase(std::remove(v.begin(), v.end(), remove_me), v.end());
     return v;
 }
 
 
-std::vector<std::string> minus(std::vector<std::string> v, std::vector<std::string> take_these_out){
-std::vector<std::string> overlap = intersection(v,take_these_out);
-for (std::string each : overlap) {v = remove_item(v, each);}
-return v;
+std::vector<std::string> minus(std::vector<std::string> v, std::vector<std::string> take_these_out) {
+    std::vector<std::string> overlap = intersection(v,take_these_out);
+for (std::string each : overlap) {
+        v = remove_item(v, each);
+    }
+    return v;
 }
 
-std::vector<std::string> add_unique_items(std::vector<std::string> v1, std::vector<std::string> v2){
-std::vector<std::string> overlap = intersection(v1,v2);
-v2 = minus(v2,overlap);
+std::vector<std::string> add_unique_items(std::vector<std::string> v1, std::vector<std::string> v2) {
+    std::vector<std::string> overlap = intersection(v1,v2);
+    v2 = minus(v2,overlap);
 for (std::string add_this : v2) v1.push_back(add_this);
-return v1;
+    return v1;
 }
 
 bool true_or_false() {
@@ -129,19 +131,26 @@ for (std::string x : all_names) {
 
 };
 class object {
+public:
     std::string name;
 };
 
-class flashcard : public object{
+class flashcard : public object {
 private:
     std::string question;
     std::string answer;
     std::vector<std::string> mention_these_terms; //all these terms must be mentioned to get the card 100% correct
 public:
-    flashcard() : name{"flashcard"} {
-    output("Q: "); question = get_string(question); newline();
-    output("A: "); answer = get_string(answer); newline();
-    output("What terms must be mentioned to get this card completely correct?"); mention_these_terms = get_vector(mention_these_terms);
+    flashcard() {
+        name = "flashcard";
+        output("Q: ");
+        question = get_string(question);
+        newline();
+        output("A: ");
+        answer = get_string(answer);
+        newline();
+        output("What terms must be mentioned to get this card completely correct?");
+        mention_these_terms = get_vector(mention_these_terms);
     };
     ~flashcard() {};
 };
@@ -172,9 +181,9 @@ public:
     std::vector<std::string> dependencies() {
         return dependent_names;
     }
-    void add_object (std::string obj){
-has_objects.push_back(obj);
-}
+    void add_object (std::string obj) {
+        has_objects.push_back(obj);
+    }
 };
 
 
@@ -186,19 +195,19 @@ class domain {
 
 public:
     domain() {
-    output("What would you like to name this domain?");
-    name_of_domain = get_string(name_of_domain);
-    relations first {};
-    pool_of_relations.push_back(first);
-    pool_of_unconnected_concepts.push_back(first.dependencies());
+        output("What would you like to name this domain?");
+        name_of_domain = get_string(name_of_domain);
+        relations first {};
+        pool_of_relations.push_back(first);
+        pool_of_unconnected_concepts = first.dependencies();
     };
-    relations name_space_overlap(relations this_relation) {
+    bool name_space_overlap(relations this_relation) {
 
         std::vector<std::string> new_relation_names = this_relation.return_names();
 for (relations existing_relation : pool_of_relations) {
 for (std::string new_name : new_relation_names) {
                 if(existing_relation.look_for(new_name)) {
-                    return existing_relation;
+                    return true;
                 }
             }
         }
@@ -210,21 +219,25 @@ for (std::string new_name : new_relation_names) {
         relations new_relation {};
         std::vector<std::string> new_relation_dependencies = new_relation.dependencies();
         std::vector<std::string> new_relation_names = new_relation.return_names();
-        relations temp = name_space_overlap(new_relation);  
-            if( temp != new_relation) {
-            output("There is a namespace overlap with: "); output(temp[0],true);
+        //figure out a way to do this...
+        
+        if(name_space_overlap(new_relation)){
+            output("There is a namespace overlap with... ");
+            //return the name of the overlap
+    }
             //Would you like to see the overlap? You'll be given the option to merge relations, choose which relation is better or disregard the newly created concept entirely.
-        }
+        
 
 //we got through all the aliases and there are no overlaps, cool, let's modify the pool_of_unconnected_concepts to be only those concepts that have no definition
-    pool_of_unconnected_concepts = minus(pool_of_unconnected_concepts, new_relation_names);
-    pool_of_unconnected_concepts = add_unique_items(pool_of_unconnected_concepts, new_relation_dependencies);
-    }
-    output("Would you like to add a flashcard? "); 
-    bool answer = true_or_false();
-    if(answer){
-        new_relation.add_object("flashcard");
-        flashcard this_card {};
+        pool_of_unconnected_concepts = minus(pool_of_unconnected_concepts, new_relation_names);
+        pool_of_unconnected_concepts = add_unique_items(pool_of_unconnected_concepts, new_relation_dependencies);
+
+        output("Would you like to add a flashcard? ");
+        bool answer = true_or_false();
+        if(answer) {
+            new_relation.add_object("flashcard");
+            flashcard this_card {};
+        }
     }
 };
 
@@ -252,8 +265,11 @@ int main() {
     std::vector<std::string> stop_light {"red", "yellow", "green"};
     std::vector<std::string> primary_color {"red","green","blue"};
 
-output("stop_light contains: ",true); print_vector(stop_light);
-output("primary_color contains: ",true); print_vector(primary_color);
-std::vector<std::string> test = minus(stop_light, primary_color);
-output("test should now be yellow: ",true); print_vector(test);
+    output("stop_light contains: ",true);
+    print_vector(stop_light);
+    output("primary_color contains: ",true);
+    print_vector(primary_color);
+    std::vector<std::string> test = minus(stop_light, primary_color);
+    output("test should now be yellow: ",true);
+    print_vector(test);
 }
