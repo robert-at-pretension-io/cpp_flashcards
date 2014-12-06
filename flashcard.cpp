@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <map>
 /*
 Created by Robert Elliot Pahel-Short some time during late October of 2014
 who: for anyone who needs to understand a topic
@@ -73,6 +74,18 @@ std::vector<std::string> remove_item(std::vector<std::string> v, std::string rem
     return v;
 }
 
+std::string choose(std::vector<std::string> options){
+output("Choose from the following options:",true);
+print_vector(options);
+std::string choice = get_string(choice);
+auto it = std::find(options.begin(),options.end(),choice);
+while(choice != *it){
+std::string choice = get_string(choice);
+output("That was not a choice");
+it = std::find(options.begin(),options.end(),choice);
+}
+return choice;
+}
 
 std::vector<std::string> minus(std::vector<std::string> v, std::vector<std::string> take_these_out) {
     std::vector<std::string> overlap = intersection(v,take_these_out);
@@ -89,6 +102,9 @@ for (std::string add_this : v2) v1.push_back(add_this);
     return v1;
 }
 
+
+
+
 bool true_or_false() {
     std::string string;
     output( "(yes or no): ");
@@ -104,6 +120,28 @@ bool true_or_false() {
     }
     return false;
 }
+
+class menu {
+
+std::map<std::string, void(*)()> fmap;
+
+
+public:
+menu(std::map<std::string, void(*)()> m) : fmap{m} {
+}
+
+void choose_option(){
+std::vector<std::string> v;
+for(std::map<std::string,f>::iterator it = fmap.begin(); it != fmap.end(); ++it) {
+    v.push_back(it->first);
+    output(it->first,true);
+}
+std::string choice = choose(v);
+fmap[choice]();
+}
+
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 class names {
 protected:
@@ -111,7 +149,7 @@ protected:
     std::vector<std::string> all_names; //these are all corresponding names for an object
     std::string explanation; //this will contain the explaination of the namespace
 public:
-    names(std::string str="Enter all names of the conceptual node.") : explanation {str}  {
+    names(std::string str="Enter aliases for a singular concept.") : explanation {str}  {
         //name the concept
         output(explanation,true);
         all_names = get_vector(all_names);
@@ -128,6 +166,8 @@ for (std::string x : all_names) {
     std::vector<std::string> return_names() {
         return all_names;
     }
+    
+
 
 };
 class object {
@@ -161,29 +201,50 @@ public:
 class relations : public names {
 protected:
     bool atomic; //this flag means that there are no related or dependent concepts, essentially it means it's the highest level in the ontological framework
-    std::vector<std::string> dependent_names; //concepts in the next level up on the hierarchical ontology
-    std::vector<std::string> has_objects; //currently the only object is flashcard
-    std::vector<object> has_these_objects;
+    std::vector<std::string> dependency_names; //concepts in the next level up on the hierarchical ontology
+    std::vector<object> objects;
 public:
     relations() : names() {
         output("Does ");
         output(unique_name);
-        output(" have any concepts that it relies on? ");
+        output(" have any more simple concepts that it relies on? ");
         bool relies_on = true_or_false();
         if(relies_on) {
-            dependent_names = get_vector(dependent_names);
+            dependency_names = get_vector(dependency_names);
         }
         if(!relies_on) {
             atomic = true;
         }
 
     };
+    void add_object(object o){
+    objects.push_back(o);
+}
+
     std::vector<std::string> dependencies() {
-        return dependent_names;
+        return dependency_names;
     }
-    void add_object (std::string obj) {
-        has_objects.push_back(obj);
-    }
+    bool operator==(relations r1){
+    if ((this->all_names == r1.all_names) and (this->dependency_names == r1.dependency_names)) return true;
+    else return false;
+}
+    bool operator!=(relations r1){
+    if ((r1.all_names == this->all_names) and (r1.dependency_names == this->dependency_names)) return false;
+    else return true;
+}
+    
+    void merge(relations r1){
+    all_names = add_unique_items(all_names, r1.all_names);
+    dependency_names = add_unique_items(dependency_names, r1.dependency_names);
+}
+    
+    void print_dependenies_and_names(){
+   output("The name of the concept is: ",true);
+    output(this->unique_name,true);
+    output("The concepts that this depends on are: ",true);
+    print_vector(this->dependency_names);
+}
+    
 };
 
 
@@ -195,47 +256,57 @@ class domain {
 
 public:
     domain() {
-        output("What would you like to name this domain?");
+        output("What would you like to name this domain? ");
         name_of_domain = get_string(name_of_domain);
         relations first {};
         pool_of_relations.push_back(first);
         pool_of_unconnected_concepts = first.dependencies();
     };
-    bool name_space_overlap(relations this_relation) {
-
+    relations name_space_overlap(relations this_relation) {
+    
         std::vector<std::string> new_relation_names = this_relation.return_names();
-for (relations existing_relation : pool_of_relations) {
+for (relations& existing_relation : pool_of_relations) {
 for (std::string new_name : new_relation_names) {
                 if(existing_relation.look_for(new_name)) {
-                    return true;
+                    
+                return existing_relation;
                 }
             }
         }
+    return this_relation;
 
     }
 
+        void update_unconnected_concepts(relations& newr){
+        
+        std::vector<std::string> new_relation_dependencies = newr.dependencies();
+        std::vector<std::string> new_relation_names = newr.return_names();
+        pool_of_unconnected_concepts = minus(pool_of_unconnected_concepts, new_relation_names);
+        pool_of_unconnected_concepts = add_unique_items(pool_of_unconnected_concepts, new_relation_dependencies);
+}
 
     void add() {
         relations new_relation {};
         std::vector<std::string> new_relation_dependencies = new_relation.dependencies();
         std::vector<std::string> new_relation_names = new_relation.return_names();
-        //figure out a way to do this...
-        
-        if(name_space_overlap(new_relation)){
-            output("There is a namespace overlap with... ");
-            //return the name of the overlap
-    }
+       //if the relation namespace already exists within our pool of relations then merge the newly created relation with the pre-existing relation 
+relations temp = name_space_overlap(new_relation);
+        if(temp != new_relation){
+            
+            temp.merge(new_relation);
+            output("The concept that you just created already exists within the domain, so it has been merged with the existing namespace",true);
+            update_unconnected_concepts(temp);
+        } 
+
             //Would you like to see the overlap? You'll be given the option to merge relations, choose which relation is better or disregard the newly created concept entirely.
         
 
 //we got through all the aliases and there are no overlaps, cool, let's modify the pool_of_unconnected_concepts to be only those concepts that have no definition
-        pool_of_unconnected_concepts = minus(pool_of_unconnected_concepts, new_relation_names);
-        pool_of_unconnected_concepts = add_unique_items(pool_of_unconnected_concepts, new_relation_dependencies);
-
         output("Would you like to add a flashcard? ");
         bool answer = true_or_false();
         if(answer) {
-            new_relation.add_object("flashcard");
+            flashcard new_card {};
+            new_relation.add_object(new_card);
             flashcard this_card {};
         }
     }
@@ -245,9 +316,15 @@ for (std::string new_name : new_relation_names) {
 
 
 class user {
-private:
-    //std::vector<category> my_current_study;
-    std::vector<std::string> my_interests;
+std::string username;
+std::vector<domain> studying_these_topics;
+public:
+user() {output("What is your username? ");
+username = get_string(username);
+domain newd {};
+studying_these_topics.push_back(newd);
+};
+
 };
 
 class stats {
@@ -260,16 +337,14 @@ class stats {
     short correct_streak;
 };
 
+void print_1(){
+output(1,true);
+return;
+}
 
 int main() {
-    std::vector<std::string> stop_light {"red", "yellow", "green"};
-    std::vector<std::string> primary_color {"red","green","blue"};
-
-    output("stop_light contains: ",true);
-    print_vector(stop_light);
-    output("primary_color contains: ",true);
-    print_vector(primary_color);
-    std::vector<std::string> test = minus(stop_light, primary_color);
-    output("test should now be yellow: ",true);
-    print_vector(test);
+std::map<std::string, void (*)()> m;
+m["output"] = print_1;
+menu newm = m;
+newm.choose_option();
 }
