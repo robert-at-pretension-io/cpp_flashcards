@@ -16,6 +16,9 @@ why: because I'm tired of not having a systematic form of measuring learning of 
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // These are input wrappers so that this can be easily ported to have other input methods//
+// Also added are general functions that make the code used in the program less verbose  //
+// In a far future version, after I have a better mastery of c++ algorithms I'm sure..   //
+// that I'll re-write the 'general functions'                                            //
 
 std::string get_string(std::string string) {
     std::cin >> string;
@@ -74,18 +77,6 @@ std::vector<std::string> remove_item(std::vector<std::string> v, std::string rem
     return v;
 }
 
-std::string choose(std::vector<std::string> options){
-output("Choose from the following options:",true);
-print_vector(options);
-std::string choice = get_string(choice);
-auto it = std::find(options.begin(),options.end(),choice);
-while(choice != *it){
-std::string choice = get_string(choice);
-output("That was not a choice");
-it = std::find(options.begin(),options.end(),choice);
-}
-return choice;
-}
 
 std::vector<std::string> minus(std::vector<std::string> v, std::vector<std::string> take_these_out) {
     std::vector<std::string> overlap = intersection(v,take_these_out);
@@ -121,6 +112,19 @@ bool true_or_false() {
     return false;
 }
 
+std::string choose(std::vector<std::string> options){
+output("Choose from the following options:",true);
+print_vector(options);
+std::string choice = get_string(choice);
+auto it = std::find(options.begin(),options.end(),choice);
+while(choice != *it){
+std::string choice = get_string(choice);
+output("That was not a choice");
+it = std::find(options.begin(),options.end(),choice);
+}
+return choice;
+}
+
 class menu {
 
 std::map<std::string, void(*)()> fmap;
@@ -132,7 +136,7 @@ menu(std::map<std::string, void(*)()> m) : fmap{m} {
 
 void choose_option(){
 std::vector<std::string> v;
-for(std::map<std::string,f>::iterator it = fmap.begin(); it != fmap.end(); ++it) {
+for(std::map<std::string,void(*)()>::iterator it = fmap.begin(); it != fmap.end(); ++it) {
     v.push_back(it->first);
     output(it->first,true);
 }
